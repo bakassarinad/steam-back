@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from api.models import Category, Game
+from api.models import Category, Game, Review, User, Manager
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,3 +16,20 @@ class GameSerializer(serializers.Serializer):
     price = serializers.FloatField()
     screenshots = serializers.CharField()
     text = serializers.CharField()
+
+class ReviewSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    id = serializers.IntegerField(required=False)
+    game = GameSerializer()
+    text = serializers.CharField()
+    rating = serializers.IntegerField()
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User,
+        fields = 'id','username','password','email'
+        
+class ManagerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Manager,
+        fields = 'id','username','password','email'
