@@ -1,0 +1,48 @@
+from django.shortcuts import render
+
+from api.models import Category, Game
+from api.serializers import CategorySerializer, GameSerializer
+
+from rest_framework.response import Response
+from rest_framework.views import status
+
+from rest_framework.decorators import api_view
+from rest_framework.views import APIView
+
+class CategoryListView(APIView):
+    def get(self, request):
+        try:
+            serializer = CategorySerializer(Category.objects.all(), many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except:
+            return Response({"error": "There is an error reading categories from database"}, status=status.HTTP_200_OK)
+            
+    def post(self, request):
+        Category.objects.create(
+            name = request.data.get('name')
+        )
+        return Response({"message": "Category successfully created."}, status=status.HTTP_201_CREATED)
+
+@api_view(['GET'])
+def category_detailed(request, id):
+    try:
+        serializer = CategorySerializer(Category.objects.get(id=id))
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except:
+        return Response({"error": "There is an error reading category from database"}, status=status.HTTP_200_OK)
+        
+@api_view(['PUT', 'DELETE'])
+def category_admin_actions(request, id):
+    try:
+        category = Category.objects.get(id=id)
+    except:
+        return Response({"error": "There is an error reading category from database"}, status=status.HTTP_200_OK)
+    
+    if request.method == 'PUT':
+        category.name = request.data.get('name')
+        category.save()
+        return Response({"message": "Category succesfully updated."}, status=status.HTTP_200_OK)
+
+    elif request.method == 'DELETE':
+        category.delete()
+        return Response({"message": "Category succesfully deleted."}, status=status.HTTP_200_OK)
